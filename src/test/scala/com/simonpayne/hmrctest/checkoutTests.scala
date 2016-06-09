@@ -34,9 +34,11 @@ class CheckoutSystemTests extends FlatSpec with Matchers {
   // v2 tests
   
   val bogofPromo = Promotion(apple, true)
-  val xforYPromo = Promotion(orange, false, true, Some(3), Some(2))   
+  val xforYPromo = Promotion(orange, false, true, Some(3), Some(2))
+  val fiveFor2Promo = Promotion(orange, false, true, Some(5), Some(2))
   val systemWithBogof = new CheckoutSystem(List(bogofPromo))
   val systemWithBogofAndXforY = new CheckoutSystem(List(bogofPromo, xforYPromo))
+  val systemWithBogofAnd5for2 = new CheckoutSystem(List(bogofPromo, fiveFor2Promo))
   
   "A checkout system with a bogof promotion on apples" should "handle an empty list" in {    
     val basket = List.empty 
@@ -56,6 +58,18 @@ class CheckoutSystemTests extends FlatSpec with Matchers {
   "A checkout system with a bogof promotion on apples & 3 for 2 on oranges" should "add up the items correctly including the bogofs and output correct total - data for 3for2 test included" in {    
     val basket = List(apple, apple, orange, apple, orange, orange)
     systemWithBogofAndXforY.addUpScannedItems(basket) should be (BigDecimal(1.7))    
+  }
+
+  // v3 tests
+
+  "A checkout system with a bogof promotion on apples & 3 for 2 on oranges" should "add up the items correctly - multiple sets of X items" in {
+    val basket = List(apple, apple, orange, apple, orange, orange, orange, orange, orange)
+    systemWithBogofAndXforY.addUpScannedItems(basket) should be (BigDecimal(2.2))
+  }
+
+  "A checkout system with a bogof promotion on apples & 5 for 2 on oranges" should "add up the items correctly and output correct total" in {
+    val basket = List(apple, apple, orange, apple, orange, orange, orange, orange, orange)
+    systemWithBogofAnd5for2.addUpScannedItems(basket) should be (BigDecimal(1.95))
   }
   
 }

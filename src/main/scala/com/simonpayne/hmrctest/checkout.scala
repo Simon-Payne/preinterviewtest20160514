@@ -19,20 +19,35 @@ class CheckoutSystem(val promos: List[Promotion]) {
 
         val furtherSplit = onPromotion.partition { g => promos.filter(_.isBogof).map { _.item }.contains(g) }
         val onBogof = furtherSplit._1
-        val onXforY = furtherSplit._2 // let's assume for now it's 3-for-2
+        val onXforY = furtherSplit._2
 
         // bogofs        
         val countB = onBogof.size
         val pairs = (countB / 2).toInt
         val remainder = (countB - pairs)
         val price = onBogof.take(1).head.price
-        val totalBogof = price + (price * pairs) 
+        val totalBogof = price + (price * pairs)
 
-        // 3for2                
-        val xfory = onXforY.map { _.price }.sum
-        val xForYTotal = (2 * xfory) / 3
+        // for now assume just one XforY promotion is configured
+        promos.find(_.isXforY) match {
+          case Some(p) =>
 
-        totalBogof + nonPromoTotal + xForYTotal
+            val xfory = onXforY.map { _.price }.sum
+            val x = p.x.getOrElse(1)
+            val y = p.y.getOrElse(1)
+            val xforyNumRem = onXforY.size % x
+            val pricefor1 = onXforY.head.price
+            val remTotal =xforyNumRem*pricefor1
+            val grpTotal = (y * (xfory-(remTotal))) / x
+            val xForYTotal = grpTotal + remTotal
+
+            totalBogof + nonPromoTotal + xForYTotal
+
+          case None =>
+            // if no XforY promos found, just output rest
+            totalBogof + nonPromoTotal
+        }
+
 
       }
 
